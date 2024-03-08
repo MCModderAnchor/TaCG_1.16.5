@@ -154,6 +154,37 @@ public class GunOptions
     });
     //Firemode positioning
 
+    public static final SliderPercentageOption X_MAIN_POS = new GunSliderPercentageOption("tac.options.xMainPos", -500, 500, 0.001F,
+            gameSettings ->
+            {
+                return Config.CLIENT.weaponGUI.mainX.get();
+                //return Config.CLIENT.controls.aimDownSightSensitivity.get();
+            },
+            (gameSettings, value) ->
+            {
+                Config.CLIENT.weaponGUI.mainX.set(MathHelper.clamp(value, -500, 500));
+                Config.saveClientConfig();
+            },
+            (gameSettings, option) -> {
+                double adsSensitivity = Config.CLIENT.weaponGUI.mainX.get();
+                return new TranslationTextComponent("tac.options.xMainPos.format", FORMAT.format(adsSensitivity));
+            });
+    public static final SliderPercentageOption Y_MAIN_POS = new GunSliderPercentageOption("tac.options.yMainPos", -500, 500, 0.001F,
+            gameSettings ->
+            {
+                return Config.CLIENT.weaponGUI.mainY.get();
+                //return Config.CLIENT.controls.aimDownSightSensitivity.get();
+            },
+            (gameSettings, value) ->
+            {
+                Config.CLIENT.weaponGUI.mainY.set(MathHelper.clamp(value, -500, 500));
+                Config.saveClientConfig();
+            },
+            (gameSettings, option) -> {
+                double adsSensitivity = Config.CLIENT.weaponGUI.mainY.get();
+                return new TranslationTextComponent("tac.options.yMainPos.format", FORMAT.format(adsSensitivity));
+            });
+
     public static final SliderPercentageOption X_FIREMODE_POS = new GunSliderPercentageOption("tac.options.xFiremodePos", -500, 500, 0.001F,
     gameSettings ->
     {
@@ -287,7 +318,7 @@ public class GunOptions
                 Config.saveClientConfig();
             },
             (gameSettings, option) -> {
-                double adsSensitivity = Config.CLIENT.weaponGUI.weaponAmmoCounter.y.get();
+                double adsSensitivity = Config.CLIENT.weaponGUI.weaponTypeIcon.y.get();
                 return new TranslationTextComponent("tac.options.yIconPos.format", FORMAT.format(adsSensitivity));
             });
     public static final SliderPercentageOption SIZE_Icon_POS = new GunSliderPercentageOption("tac.options.sizeIconPos", 0.1, 4, 0.001F,
@@ -329,6 +360,29 @@ public class GunOptions
                 return new TranslationTextComponent("tac.options.xReloadBarPos.format", FORMAT.format(adsSensitivity));
             });
 
+    public static final BooleanOption OVERHEAT_EXIST = new BooleanOption("tac.options.overheatExist", (settings) -> {
+        return Config.CLIENT.weaponGUI.weaponOverheatBar.showWeaponOverheatBar.get();
+    }, (settings, value) -> {
+        Config.CLIENT.weaponGUI.weaponOverheatBar.showWeaponOverheatBar.set(value);
+        Config.saveClientConfig();
+    });
+
+    public static final SliderPercentageOption OVERHEAT_ALPHA = new GunSliderPercentageOption("tac.options.overheatAlpha", 0f, 1f, 0.01F,
+            gameSettings ->
+            {
+                return Config.CLIENT.weaponGUI.weaponOverheatBar.weaponOverheatBarAlpha.get();
+                //return Config.CLIENT.controls.aimDownSightSensitivity.get();
+            },
+            (gameSettings, value) ->
+            {
+                Config.CLIENT.weaponGUI.weaponOverheatBar.weaponOverheatBarAlpha.set(MathHelper.clamp(value, 0f, 1f));
+                Config.saveClientConfig();
+            },
+            (gameSettings, option) -> {
+                double alpha = Config.CLIENT.weaponGUI.weaponOverheatBar.weaponOverheatBarAlpha.get();
+                return new TranslationTextComponent("tac.options.overheatAlpha.format", FORMAT.format(alpha));
+            });
+
     public static final SliderPercentageOption Fire_Volume = new GunSliderPercentageOption("tac.options.weaponsVolume", 0f, 1f, 0.01F,
             gameSettings ->
             {
@@ -343,6 +397,38 @@ public class GunOptions
             (gameSettings, option) -> {
                 double adsSensitivity = Config.CLIENT.sounds.weaponsVolume.get();
                 return new TranslationTextComponent("tac.options.weaponsVolume.format", FORMAT.format(adsSensitivity));
+            });
+
+    public static final SliderPercentageOption BARREL_VOLUME = new GunSliderPercentageOption("tac.options.barrelVolume", 0f, 1f, 0.01F,
+            gameSettings ->
+            {
+                return Config.CLIENT.sounds.barrelVolume.get();
+                //return Config.CLIENT.controls.aimDownSightSensitivity.get();
+            },
+            (gameSettings, value) ->
+            {
+                Config.CLIENT.sounds.barrelVolume.set(MathHelper.clamp(value, 0f, 1f));
+                Config.saveClientConfig();
+            },
+            (gameSettings, option) -> {
+                double adsSensitivity = Config.CLIENT.sounds.barrelVolume.get();
+                return new TranslationTextComponent("tac.options.barrelVolume.format", FORMAT.format(adsSensitivity));
+            });
+
+    public static final SliderPercentageOption BARREL_LOW_VOLUME = new GunSliderPercentageOption("tac.options.barrelLowVolume", 0f, 1f, 0.01F,
+            gameSettings ->
+            {
+                return Config.CLIENT.sounds.barrelLowVolume.get();
+                //return Config.CLIENT.controls.aimDownSightSensitivity.get();
+            },
+            (gameSettings, value) ->
+            {
+                Config.CLIENT.sounds.barrelLowVolume.set(MathHelper.clamp(value, 0f, 1f));
+                Config.saveClientConfig();
+            },
+            (gameSettings, option) -> {
+                double adsSensitivity = Config.CLIENT.sounds.barrelLowVolume.get();
+                return new TranslationTextComponent("tac.options.barrelLowVolume.format", FORMAT.format(adsSensitivity));
             });
     public static final SliderPercentageOption Y_ReloadBar_POS = new GunSliderPercentageOption("tac.options.yReloadBarPos", -500, 500, 0.001F,
             gameSettings ->

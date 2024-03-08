@@ -48,7 +48,7 @@ public class m4_animation extends SkinAnimationModel {
 
             renderLaserDevice(stack, matrices, renderBuffer, light, overlay, skin);
 
-            if (transformType.isFirstPerson() || Config.COMMON.gameplay.canSeeLaserThirdSight.get())
+            if (transformType.isFirstPerson() || Config.SERVER.gameplay.canSeeLaserThirdSight.get())
                 renderLaser(stack, matrices, renderBuffer, light, overlay, skin);
 
             // If niether trips, render the cover for the side or top, since only one is accessible at once currently, TODO: Have a more streamlined system to handle multi-accesible attachments
@@ -81,8 +81,8 @@ public class m4_animation extends SkinAnimationModel {
             {
                 if (transformType.isFirstPerson()) {
                     Gun gun = ((GunItem) stack.getItem()).getGun();
-                    int gunRate = (int) Math.min(ShootingHandler.calcShootTickGap(gun.getGeneral().getRate()), 4);
-                    int rateBias = (int) (ShootingHandler.calcShootTickGap(gun.getGeneral().getRate()) - gunRate);
+                    float gunRate = Math.min(ShootingHandler.calcShootTickGap(gun.getGeneral().getRate()), 4);
+                    float rateBias = ShootingHandler.calcShootTickGap(gun.getGeneral().getRate()) - gunRate;
                     float cooldownOg = (ShootingHandler.get().getshootMsGap() - rateBias) / gunRate < 0 ? 1 : MathHelper.clamp((ShootingHandler.get().getshootMsGap() - rateBias) / gunRate, 0, 1);
 
                     if (Gun.hasAmmo(stack)) {

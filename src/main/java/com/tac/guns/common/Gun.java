@@ -12,6 +12,7 @@ import com.tac.guns.interfaces.TGExclude;
 import com.tac.guns.item.attachment.IAttachment;
 import com.tac.guns.item.attachment.IScope;
 import com.tac.guns.item.attachment.impl.Scope;
+import com.tac.guns.item.transition.TimelessGunItem;
 import com.tac.guns.util.GunModifierHelper;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
@@ -32,6 +33,7 @@ public final class Gun implements INBTSerializable<CompoundNBT> {
     private General general = new General();
     private Reloads reloads = new Reloads();
     private Projectile projectile = new Projectile();
+    private AmmoPlugEffect ammoPlugEffect = new AmmoPlugEffect();
     private Sounds sounds = new Sounds();
     private Display display = new Display();
     private Modules modules = new Modules();
@@ -46,6 +48,10 @@ public final class Gun implements INBTSerializable<CompoundNBT> {
 
     public Projectile getProjectile() {
         return this.projectile;
+    }
+
+    public AmmoPlugEffect getAmmoPlugEffect() {
+        return this.ammoPlugEffect;
     }
 
     public Sounds getSounds() {
@@ -319,7 +325,7 @@ public final class Gun implements INBTSerializable<CompoundNBT> {
          * @return The fire rate of this weapon in ticks
          */
         public int getRate() {
-            return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.COMMON.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.general) ? (int) (this.rate + GunEditor.get().getRateMod()) : (int) this.rate;
+            return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.SERVER.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.general) ? (int) (this.rate + GunEditor.get().getRateMod()) : (int) this.rate;
         }
 
         /**
@@ -333,7 +339,7 @@ public final class Gun implements INBTSerializable<CompoundNBT> {
          * @return The fire rate of this weapon in ticks
          */
         public int getBurstRate() {
-            return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.COMMON.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.general) ? (int) (this.burstRate + GunEditor.get().getBurstRateMod()) : (int) this.burstRate;
+            return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.SERVER.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.general) ? (int) (this.burstRate + GunEditor.get().getBurstRateMod()) : (int) this.burstRate;
         }
 
         public int getBurstCount() {
@@ -358,49 +364,49 @@ public final class Gun implements INBTSerializable<CompoundNBT> {
          * @return The amount of recoil this gun produces upon firing in degrees
          */
         public float getRecoilAngle() {
-            return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.COMMON.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.general) ? this.recoilAngle + GunEditor.get().getRecoilAngleMod() : (this.recoilAngle / 1.5f);
+            return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.SERVER.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.general) ? this.recoilAngle + GunEditor.get().getRecoilAngleMod() : (this.recoilAngle / 1.5f);
         }
 
         /**
          * @return The amount of kick this gun produces upon firing
          */
         public float getRecoilKick() {
-            return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.COMMON.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.general) ? this.recoilKick + GunEditor.get().getRecoilKickMod() : (this.recoilKick / 1.5f);
+            return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.SERVER.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.general) ? this.recoilKick + GunEditor.get().getRecoilKickMod() : (this.recoilKick / 1.5f);
         }
 
         /**
          * @return The amount of horizontal kick this gun produces upon firing
          */
         public float getHorizontalRecoilAngle() {
-            return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.COMMON.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.general) ? this.horizontalRecoilAngle + GunEditor.get().getHorizontalRecoilAngleMod() : (this.horizontalRecoilAngle / 1.5f);
+            return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.SERVER.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.general) ? this.horizontalRecoilAngle + GunEditor.get().getHorizontalRecoilAngleMod() : (this.horizontalRecoilAngle / 1.5f);
         }
 
         /**
          * @return How much to divide out of camera recoil, use for either softening camera shake while keeping high recoil feeling weapons
          */
         public float getCameraRecoilModifier() {
-            return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.COMMON.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.general) ? this.cameraRecoilModifier + GunEditor.get().getCameraRecoilModifierMod() : this.cameraRecoilModifier;
+            return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.SERVER.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.general) ? this.cameraRecoilModifier + GunEditor.get().getCameraRecoilModifierMod() : this.cameraRecoilModifier;
         }
 
         /**
          * @return The duration offset for recoil. This reduces the duration of recoil animation
          */
         public float getRecoilDuration() {
-            return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.COMMON.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.general) ? this.recoilDuration + GunEditor.get().getRecoilDurationMod() : this.recoilDuration;
+            return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.SERVER.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.general) ? this.recoilDuration + GunEditor.get().getRecoilDurationMod() : this.recoilDuration;
         }
 
         /**
          * @return Recoil (the weapon) up until the weapon cooldown is under this value (0.1 == 10% recoil time left, use to help scale with high firerate weapons and their weapon recoil feel)
          */
         public float getWeaponRecoilOffset() {
-            return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.COMMON.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.general) ? this.weaponRecoilOffset + GunEditor.get().getWeaponRecoilDurationMod() : this.weaponRecoilOffset;
+            return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.SERVER.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.general) ? this.weaponRecoilOffset + GunEditor.get().getWeaponRecoilDurationMod() : this.weaponRecoilOffset;
         }
 
         /**
          * @return Recoil (the weapon) up until the weapon cooldown is under this value (0.1 == 10% recoil time left, use to help scale with high firerate weapons and their weapon recoil feel)
          */
         public float getCameraRecoilDuration() {
-            return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.COMMON.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.general) ? this.cameraRecoilDuration + GunEditor.get().getWeaponRecoilDurationMod() : this.cameraRecoilDuration;
+            return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.SERVER.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.general) ? this.cameraRecoilDuration + GunEditor.get().getWeaponRecoilDurationMod() : this.cameraRecoilDuration;
         }
 
         /**
@@ -414,16 +420,16 @@ public final class Gun implements INBTSerializable<CompoundNBT> {
          * @return The amount of reduction applied when aiming down this weapon's sight
          */
         public float getRecoilAdsReduction() {
-            return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.COMMON.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.general) ? (this.recoilAdsReduction + GunEditor.get().getRecoilAdsReductionMod()) * 2 : (this.recoilAdsReduction) * 2;
+            return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.SERVER.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.general) ? (this.recoilAdsReduction + GunEditor.get().getRecoilAdsReductionMod()) * 2 : (this.recoilAdsReduction) * 2;
         }
 
-        /*public float getRecoilAdsReduction() {return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.COMMON.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.general) ? (this.recoilAdsReduction + GunEditor.get().getRecoilAdsReductionMod())*2 : (this.recoilAdsReduction)*2;}*/
+        /*public float getRecoilAdsReduction() {return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.SERVER.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.general) ? (this.recoilAdsReduction + GunEditor.get().getRecoilAdsReductionMod())*2 : (this.recoilAdsReduction)*2;}*/
 
         /**
          * @return The amount of projectiles this weapon fires
          */
         public int getProjectileAmount() {
-            return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.COMMON.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.general) ? (int) (this.projectileAmount + GunEditor.get().getProjectileAmountMod()) : this.projectileAmount;
+            return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.SERVER.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.general) ? (int) (this.projectileAmount + GunEditor.get().getProjectileAmountMod()) : this.projectileAmount;
         }
 
         /**
@@ -438,7 +444,7 @@ public final class Gun implements INBTSerializable<CompoundNBT> {
          * the fired projectile.
          */
         public float getSpread() {
-            return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.COMMON.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.general) ?
+            return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.SERVER.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.general) ?
                     (this.spread * 0.5f + GunEditor.get().getSpreadMod()) : this.spread * 0.5f;
         }
 
@@ -446,7 +452,7 @@ public final class Gun implements INBTSerializable<CompoundNBT> {
          * @return The default Kilogram weight of the weapon
          */
         public float getWeightKilo() {
-            return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.COMMON.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.general) ? this.weightKilo + GunEditor.get().getWeightKiloMod() : this.weightKilo;//*1.25f;
+            return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.SERVER.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.general) ? this.weightKilo + GunEditor.get().getWeightKiloMod() : this.weightKilo;//*1.25f;
         }
 
         /**
@@ -515,6 +521,20 @@ public final class Gun implements INBTSerializable<CompoundNBT> {
         @Optional
         private boolean magFed = false;
         @Optional
+        private boolean noMag = false;
+        @Optional
+        private boolean isHeat = false;
+        @Optional
+        private boolean isBarrel = false;
+        @Optional
+        private int tickToHeat = 200;
+        @Optional
+        private int tickOverHeat = 40;
+        @Optional
+        private int heatRecover = 1;
+        @Optional
+        private int delay = 0;
+        @Optional
         private int reloadMagTimer = 20;
         @Optional
         private int additionalReloadEmptyMagTimer = 0;
@@ -547,7 +567,14 @@ public final class Gun implements INBTSerializable<CompoundNBT> {
             CompoundNBT tag = new CompoundNBT();
             tag.putInt("MaxAmmo", this.maxAmmo);
             tag.putBoolean("MagFed", this.magFed);
+            tag.putBoolean("NoMag", this.noMag);
+            tag.putBoolean("IsHeat", this.isHeat);
+            tag.putBoolean("IsBarrel", this.isBarrel);
             tag.putInt("ReloadSpeed", this.reloadAmount);
+            tag.putInt("TickToHeat", this.tickToHeat);
+            tag.putInt("TickOverHeat", this.tickOverHeat);
+            tag.putInt("HeatRecover", this.heatRecover);
+            tag.putInt("Delay", this.delay);
             tag.putInt("ReloadMagTimer", this.reloadMagTimer);
             tag.putInt("AdditionalReloadEmptyMagTimer", this.additionalReloadEmptyMagTimer);
             tag.putIntArray("MaxAmmunitionPerOverCap", this.maxAdditionalAmmoPerOC);
@@ -567,8 +594,29 @@ public final class Gun implements INBTSerializable<CompoundNBT> {
             if (tag.contains("MagFed", Constants.NBT.TAG_ANY_NUMERIC)) {
                 this.magFed = tag.getBoolean("MagFed");
             }
+            if (tag.contains("NoMag", Constants.NBT.TAG_ANY_NUMERIC)) {
+                this.noMag = tag.getBoolean("NoMag");
+            }
+            if (tag.contains("IsHeat", Constants.NBT.TAG_ANY_NUMERIC)) {
+                this.isHeat = tag.getBoolean("IsHeat");
+            }
+            if (tag.contains("IsBarrel", Constants.NBT.TAG_ANY_NUMERIC)) {
+                this.isBarrel = tag.getBoolean("IsBarrel");
+            }
             if (tag.contains("ReloadSpeed", Constants.NBT.TAG_ANY_NUMERIC)) {
                 this.reloadAmount = tag.getInt("ReloadSpeed");
+            }
+            if (tag.contains("TickToHeat", Constants.NBT.TAG_ANY_NUMERIC)) {
+                this.tickToHeat = tag.getInt("TickToHeat");
+            }
+            if (tag.contains("TickOverHeat", Constants.NBT.TAG_ANY_NUMERIC)) {
+                this.tickOverHeat = tag.getInt("TickOverHeat");
+            }
+            if (tag.contains("HeatRecover", Constants.NBT.TAG_ANY_NUMERIC)) {
+                this.heatRecover = tag.getInt("HeatRecover");
+            }
+            if (tag.contains("Delay", Constants.NBT.TAG_ANY_NUMERIC)) {
+                this.delay = tag.getInt("Delay");
             }
             if (tag.contains("ReloadMagTimer", Constants.NBT.TAG_ANY_NUMERIC)) {
                 this.reloadMagTimer = tag.getInt("ReloadMagTimer");
@@ -602,8 +650,15 @@ public final class Gun implements INBTSerializable<CompoundNBT> {
         public Reloads copy() {
             Reloads reloads = new Reloads();
             reloads.magFed = this.magFed;
+            reloads.noMag = this.noMag;
+            reloads.isHeat = this.isHeat;
+            reloads.isBarrel = this.isBarrel;
             reloads.maxAmmo = this.maxAmmo;
             reloads.reloadAmount = this.reloadAmount;
+            reloads.tickToHeat = this.tickToHeat;
+            reloads.tickOverHeat = this.tickOverHeat;
+            reloads.heatRecover = this.heatRecover;
+            reloads.delay = this.delay;
             reloads.reloadMagTimer = this.reloadMagTimer;
             reloads.additionalReloadEmptyMagTimer = this.additionalReloadEmptyMagTimer;
             reloads.maxAdditionalAmmoPerOC = this.maxAdditionalAmmoPerOC;
@@ -623,6 +678,27 @@ public final class Gun implements INBTSerializable<CompoundNBT> {
         }
 
         /**
+         * @return Does this gun don't need to reload
+         */
+        public boolean isNoMag() {
+            return this.noMag;
+        }
+
+        /**
+         * @return Does this gun use heat system
+         */
+        public boolean isHeat() {
+            return this.isHeat;
+        }
+
+        /**
+         * @return Does this gun don't need to reload
+         */
+        public boolean isBarrel() {
+            return this.isBarrel;
+        }
+
+        /**
          * @return The maximum amount of ammo this weapon can hold
          */
         public int getMaxAmmo() {
@@ -633,21 +709,49 @@ public final class Gun implements INBTSerializable<CompoundNBT> {
          * @return The amount of ammo to add to the weapon each reload cycle
          */
         public int getReloadAmount() {
-            return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.COMMON.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.reloads) ? (int) (this.reloadAmount + GunEditor.get().getReloadAmountMod()) : this.reloadAmount;
+            return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.SERVER.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.reloads) ? (int) (this.reloadAmount + GunEditor.get().getReloadAmountMod()) : this.reloadAmount;
+        }
+
+        /**
+         * @return The tick to overheat of the weapon
+         */
+        public int getTickToHeat() {
+            return this.tickToHeat;
+        }
+
+        /**
+         * @return The extra tick punishment while overheat of the weapon
+         */
+        public int getTickOverHeat() {
+            return this.tickOverHeat;
+        }
+
+        /**
+         * @return The heat recover speed of the weapon
+         */
+        public int getHeatRecover() {
+            return this.heatRecover;
+        }
+
+        /**
+         * @return The delay of the weapon
+         */
+        public int getDelay() {
+            return this.delay;
         }
 
         /**
          * @return The amount of ammo to add to the weapon each reload cycle
          */
         public int getReloadMagTimer() {
-            return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.COMMON.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.reloads) ? (int) (this.reloadMagTimer + GunEditor.get().getReloadMagTimerMod()) : this.reloadMagTimer;
+            return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.SERVER.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.reloads) ? (int) (this.reloadMagTimer + GunEditor.get().getReloadMagTimerMod()) : this.reloadMagTimer;
         }
 
         /**
          * @return The amount of ammo to add to the weapon each reload cycle
          */
         public int getAdditionalReloadEmptyMagTimer() {
-            return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.COMMON.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.reloads) ? (int) (this.additionalReloadEmptyMagTimer + GunEditor.get().getAdditionalReloadEmptyMagTimerMod()) : this.additionalReloadEmptyMagTimer;
+            return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.SERVER.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.reloads) ? (int) (this.additionalReloadEmptyMagTimer + GunEditor.get().getAdditionalReloadEmptyMagTimerMod()) : this.additionalReloadEmptyMagTimer;
         }
 
         /**
@@ -661,14 +765,14 @@ public final class Gun implements INBTSerializable<CompoundNBT> {
          * @return The amount of ammo to add to the weapon each reload cycle
          */
         public int getPreReloadPauseTicks() {
-            return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.COMMON.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.reloads) ? (int) (this.preReloadPauseTicks + GunEditor.get().getPreReloadPauseTicksMod()) : this.preReloadPauseTicks;
+            return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.SERVER.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.reloads) ? (int) (this.preReloadPauseTicks + GunEditor.get().getPreReloadPauseTicksMod()) : this.preReloadPauseTicks;
         }
 
         /**
          * @return The amount of ammo to add to the weapon each reload cycle
          */
         public int getinterReloadPauseTicks() {
-            return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.COMMON.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.reloads) ? (int) (this.interReloadPauseTicks + GunEditor.get().getInterReloadPauseTicksMod()) : this.interReloadPauseTicks;
+            return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.SERVER.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.reloads) ? (int) (this.interReloadPauseTicks + GunEditor.get().getInterReloadPauseTicksMod()) : this.interReloadPauseTicks;
         }
 
         /**
@@ -756,7 +860,7 @@ public final class Gun implements INBTSerializable<CompoundNBT> {
             tag.putFloat("Size", this.size);
             tag.putDouble("Speed", this.speed);
             tag.putInt("Life", this.life);
-            tag.putDouble("Pierce", this.pierce);
+            tag.putInt("Pierce", this.pierce);
             tag.putBoolean("Gravity", this.gravity);
             tag.putBoolean("DamageReduceOverLife", this.damageReduceOverLife);
             tag.putInt("TrailColor", this.trailColor);
@@ -899,7 +1003,7 @@ public final class Gun implements INBTSerializable<CompoundNBT> {
          * @return The Damage caused by this projectile
          */
         public float getDamage() {
-            return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.COMMON.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.projectile) ? (this.damage + GunEditor.get().getDamageMod()) : this.damage;
+            return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.SERVER.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.projectile) ? (this.damage + GunEditor.get().getDamageMod()) : this.damage;
         }
 
         /**
@@ -927,70 +1031,70 @@ public final class Gun implements INBTSerializable<CompoundNBT> {
          * @return The ArmorIgnore caused by this projectile
          */
         public float getGunArmorIgnore() {
-            return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.COMMON.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.projectile) ? (this.armorIgnore + GunEditor.get().getArmorIgnoreMod()) : this.armorIgnore;
+            return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.SERVER.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.projectile) ? (this.armorIgnore + GunEditor.get().getArmorIgnoreMod()) : this.armorIgnore;
         }
 
         /**
          * @return The Critical caused by this projectile
          */
         public float getGunCritical() {
-            return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.COMMON.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.projectile) ? (this.critical + GunEditor.get().getCriticalMod()) : this.critical;
+            return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.SERVER.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.projectile) ? (this.critical + GunEditor.get().getCriticalMod()) : this.critical;
         }
 
         /**
          * @return The CriticalDamage caused by this projectile
          */
         public float getGunCriticalDamage() {
-            return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.COMMON.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.projectile) ? (this.criticalDamage + GunEditor.get().getCriticalDamageMod()) : this.criticalDamage;
+            return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.SERVER.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.projectile) ? (this.criticalDamage + GunEditor.get().getCriticalDamageMod()) : this.criticalDamage;
         }
 
         /**
          * @return The HeadDamage caused by this projectile
          */
         public float getGunHeadDamage() {
-            return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.COMMON.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.projectile) ? (this.headDamage + GunEditor.get().getHeadDamageMod()) : this.headDamage;
+            return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.SERVER.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.projectile) ? (this.headDamage + GunEditor.get().getHeadDamageMod()) : this.headDamage;
         }
 
         /**
          * @return The CloseDamage caused by this projectile
          */
         public float getGunCloseDamage() {
-            return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.COMMON.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.projectile) ? (this.closeDamage + GunEditor.get().getCloseDamageMod()) : this.closeDamage;
+            return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.SERVER.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.projectile) ? (this.closeDamage + GunEditor.get().getCloseDamageMod()) : this.closeDamage;
         }
 
         /**
          * @return The decay start position of this projectile
          */
         public float getGunDecayStart() {
-            return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.COMMON.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.projectile) ? (this.decayStart + GunEditor.get().getDecayStartMod()) : this.decayStart;
+            return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.SERVER.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.projectile) ? (this.decayStart + GunEditor.get().getDecayStartMod()) : this.decayStart;
         }
 
         /**
          * @return The min decay percentage of this projectile
          */
         public float getGunMinDecayMultiplier() {
-            return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.COMMON.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.projectile) ? (this.minDecayMultiplier + GunEditor.get().getMinDecayMultiplierMod()) : this.minDecayMultiplier;
+            return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.SERVER.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.projectile) ? (this.minDecayMultiplier + GunEditor.get().getMinDecayMultiplierMod()) : this.minDecayMultiplier;
         }
 
         /**
          * @return The decay end position of this projectile
          */
         public float getGunDecayEnd() {
-            return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.COMMON.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.projectile) ? (this.decayEnd + GunEditor.get().getDecayEndMod()) : this.decayEnd;
+            return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.SERVER.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.projectile) ? (this.decayEnd + GunEditor.get().getDecayEndMod()) : this.decayEnd;
         }
 
         /**
          * @return The size of the projectile entity bounding box
          */
         public float getSize() {
-            return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.COMMON.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.projectile) ? (this.size + GunEditor.get().getDamageMod()) : this.size;
+            return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.SERVER.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.projectile) ? (this.size + GunEditor.get().getDamageMod()) : this.size;
         }
 
         /**
          * @return The speed the projectile moves every tick
          */
         public double getSpeed() {
-            return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.COMMON.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.projectile) ?
+            return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.SERVER.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.projectile) ?
                     (this.speed + GunEditor.get().getSpeedMod()) : this.speed;
         }
 
@@ -998,7 +1102,7 @@ public final class Gun implements INBTSerializable<CompoundNBT> {
          * @return The amount of ticks before this projectile is removed
          */
         public int getLife() {
-            return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.COMMON.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.projectile) ?
+            return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.SERVER.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.projectile) ?
                     (int) (this.life + GunEditor.get().getLifeMod()) : this.life;
         }
 
@@ -1064,6 +1168,206 @@ public final class Gun implements INBTSerializable<CompoundNBT> {
          */
         public float getBluntDamagePercentage() {
             return this.bluntDamagePercentage;
+        }
+    }
+
+    public static class AmmoPlugEffect implements INBTSerializable<CompoundNBT> {
+        @Optional
+        private int[] fmjModifyArmorIgnore = new int[]{120, 120, 120};
+        @Optional
+        private int[] fmjModifyDamage = new int[]{95, 95, 95};
+        @Optional
+        private int[] fmjModifySpeed = new int[]{100, 100, 100};
+        @Optional
+        private int[] heModifyArmorIgnore = new int[]{100, 100, 100};
+        @Optional
+        private int[] heModifyDamage = new int[]{95, 95, 95};
+        @Optional
+        private int[] heModifySpeed = new int[]{100, 100, 100};
+        @Optional
+        private int[] heModifyBlastDamage = new int[]{140, 140, 140};
+        @Optional
+        private int[] heModifyBlastRange = new int[]{100, 100, 100};
+        @Optional
+        private int[] hpModifyArmorIgnore = new int[]{60, 60, 60};
+        @Optional
+        private int[] hpModifyDamage = new int[]{120, 120, 120};
+        @Optional
+        private int[] hpModifySpeed = new int[]{85, 85, 85};
+        @Optional
+        private int[] iModifyArmorIgnore = new int[]{80, 80, 80};
+        @Optional
+        private int[] iModifyDamage = new int[]{100, 100, 100};
+        @Optional
+        private int[] iModifySpeed = new int[]{100, 100, 100};
+        @Optional
+        private int[] igniteTick = new int[]{20, 20, 20};
+        @Optional
+        private int[] igniteDamage = new int[]{1, 1, 1};
+
+        @Override
+        public CompoundNBT serializeNBT() {
+            CompoundNBT tag = new CompoundNBT();
+            tag.putIntArray("FmjModifyArmorIgnore", this.fmjModifyArmorIgnore);
+            tag.putIntArray("FmjModifyDamage", this.fmjModifyDamage);
+            tag.putIntArray("FmjModifySpeed", this.fmjModifySpeed);
+            tag.putIntArray("HeModifyArmorIgnore", this.heModifyArmorIgnore);
+            tag.putIntArray("HeModifyDamage", this.heModifyDamage);
+            tag.putIntArray("HeModifySpeed", this.heModifySpeed);
+            tag.putIntArray("HeModifyBlastDamage", this.heModifyBlastDamage);
+            tag.putIntArray("HeModifyBlastRange", this.heModifyBlastRange);
+            tag.putIntArray("HpModifyArmorIgnore", this.hpModifyArmorIgnore);
+            tag.putIntArray("HpModifyDamage", this.hpModifyDamage);
+            tag.putIntArray("HpModifySpeed", this.hpModifySpeed);
+            tag.putIntArray("IModifyArmorIgnore", this.iModifyArmorIgnore);
+            tag.putIntArray("IModifyDamage", this.iModifyDamage);
+            tag.putIntArray("IModifySpeed", this.iModifySpeed);
+            tag.putIntArray("IgniteTick", this.igniteTick);
+            tag.putIntArray("IgniteDamage", this.igniteDamage);
+            return tag;
+        }
+
+        @Override
+        public void deserializeNBT(CompoundNBT tag) {
+            if (tag.contains("FmjModifyArmorIgnore", Constants.NBT.TAG_ANY_NUMERIC)) {
+                this.fmjModifyArmorIgnore = tag.getIntArray("FmjModifyArmorIgnore");
+            }
+            if (tag.contains("FmjModifyDamage", Constants.NBT.TAG_ANY_NUMERIC)) {
+                this.fmjModifyDamage = tag.getIntArray("FmjModifyDamage");
+            }
+            if (tag.contains("FmjModifySpeed", Constants.NBT.TAG_ANY_NUMERIC)) {
+                this.fmjModifySpeed = tag.getIntArray("FmjModifySpeed");
+            }
+            if (tag.contains("HeModifyArmorIgnore", Constants.NBT.TAG_ANY_NUMERIC)) {
+                this.heModifyArmorIgnore = tag.getIntArray("HeModifyArmorIgnore");
+            }
+            if (tag.contains("HeModifyDamage", Constants.NBT.TAG_ANY_NUMERIC)) {
+                this.heModifyDamage = tag.getIntArray("HeModifyDamage");
+            }
+            if (tag.contains("HeModifySpeed", Constants.NBT.TAG_ANY_NUMERIC)) {
+                this.heModifySpeed = tag.getIntArray("HeModifySpeed");
+            }
+            if (tag.contains("HeModifyBlastDamage", Constants.NBT.TAG_ANY_NUMERIC)) {
+                this.heModifyBlastDamage = tag.getIntArray("HeModifyBlastDamage");
+            }
+            if (tag.contains("HeModifyBlastRange", Constants.NBT.TAG_ANY_NUMERIC)) {
+                this.heModifyBlastRange = tag.getIntArray("HeModifyBlastRange");
+            }
+            if (tag.contains("HpModifyArmorIgnore", Constants.NBT.TAG_ANY_NUMERIC)) {
+                this.hpModifyArmorIgnore = tag.getIntArray("HpModifyArmorIgnore");
+            }
+            if (tag.contains("HpModifyDamage", Constants.NBT.TAG_ANY_NUMERIC)) {
+                this.hpModifyDamage = tag.getIntArray("HpModifyDamage");
+            }
+            if (tag.contains("HpModifySpeed", Constants.NBT.TAG_ANY_NUMERIC)) {
+                this.hpModifySpeed = tag.getIntArray("HpModifySpeed");
+            }
+            if (tag.contains("IModifyArmorIgnore", Constants.NBT.TAG_ANY_NUMERIC)) {
+                this.iModifyArmorIgnore = tag.getIntArray("IModifyArmorIgnore");
+            }
+            if (tag.contains("IModifyDamage", Constants.NBT.TAG_ANY_NUMERIC)) {
+                this.iModifyDamage = tag.getIntArray("IModifyDamage");
+            }
+            if (tag.contains("IModifySpeed", Constants.NBT.TAG_ANY_NUMERIC)) {
+                this.iModifySpeed = tag.getIntArray("IModifySpeed");
+            }
+            if (tag.contains("IgniteTick", Constants.NBT.TAG_ANY_NUMERIC)) {
+                this.igniteTick = tag.getIntArray("IgniteTick");
+            }
+            if (tag.contains("IgniteDamage", Constants.NBT.TAG_ANY_NUMERIC)) {
+                this.igniteDamage = tag.getIntArray("IgniteDamage");
+            }
+        }
+
+        /**
+         * @return A copy of the general get
+         */
+        public AmmoPlugEffect copy() {
+            AmmoPlugEffect ammoPlugEffect = new AmmoPlugEffect();
+            ammoPlugEffect.fmjModifyArmorIgnore = this.fmjModifyArmorIgnore;
+            ammoPlugEffect.fmjModifyDamage = this.fmjModifyDamage;
+            ammoPlugEffect.fmjModifySpeed = this.fmjModifySpeed;
+            ammoPlugEffect.heModifyArmorIgnore = this.heModifyArmorIgnore;
+            ammoPlugEffect.heModifyDamage = this.heModifyDamage;
+            ammoPlugEffect.heModifySpeed = this.heModifySpeed;
+            ammoPlugEffect.heModifyBlastDamage = this.heModifyBlastDamage;
+            ammoPlugEffect.heModifyBlastRange = this.heModifyBlastRange;
+            ammoPlugEffect.hpModifyArmorIgnore = this.hpModifyArmorIgnore;
+            ammoPlugEffect.hpModifyDamage = this.hpModifyDamage;
+            ammoPlugEffect.hpModifySpeed = this.hpModifySpeed;
+            ammoPlugEffect.iModifyArmorIgnore = this.iModifyArmorIgnore;
+            ammoPlugEffect.iModifyDamage = this.iModifyDamage;
+            ammoPlugEffect.iModifySpeed = this.iModifySpeed;
+            ammoPlugEffect.igniteTick = this.igniteTick;
+            ammoPlugEffect.igniteDamage = this.igniteDamage;
+            return ammoPlugEffect;
+        }
+
+        /**
+         * @return ammo plug effects
+         */
+        public int[] getFmjModifyArmorIgnore() {
+            return this.fmjModifyArmorIgnore;
+        }
+
+        public int[] getFmjModifyDamage() {
+            return this.fmjModifyDamage;
+        }
+
+        public int[] getFmjModifySpeed() {
+            return this.fmjModifySpeed;
+        }
+
+        public int[] getHeModifyArmorIgnore() {
+            return this.heModifyArmorIgnore;
+        }
+
+        public int[] getHeModifyDamage() {
+            return this.heModifyDamage;
+        }
+
+        public int[] getHeModifySpeed() {
+            return this.heModifySpeed;
+        }
+
+        public int[] getHeModifyBlastDamage() {
+            return this.heModifyBlastDamage;
+        }
+
+        public int[] getHeModifyBlastRange() {
+            return this.heModifyBlastRange;
+        }
+
+        public int[] getHpModifyArmorIgnore() {
+            return this.hpModifyArmorIgnore;
+        }
+
+        public int[] getHpModifyDamage() {
+            return this.hpModifyDamage;
+        }
+
+        public int[] getHpModifySpeed() {
+            return this.hpModifySpeed;
+        }
+
+        public int[] getIModifyArmorIgnore() {
+            return this.iModifyArmorIgnore;
+        }
+
+        public int[] getIModifyDamage() {
+            return this.iModifyDamage;
+        }
+
+        public int[] getIModifySpeed() {
+            return this.iModifySpeed;
+        }
+
+        public int[] getIgniteTick() {
+            return this.igniteTick;
+        }
+
+        public int[] getIgniteDamage() {
+            return this.igniteDamage;
         }
     }
 
@@ -1480,21 +1784,21 @@ public final class Gun implements INBTSerializable<CompoundNBT> {
 
             @Override
             public double getXOffset() {
-                return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.COMMON.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.flash) ? this.xOffset + GunEditor.get().getxMod() : this.xOffset;
+                return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.SERVER.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.flash) ? this.xOffset + GunEditor.get().getxMod() : this.xOffset;
             }
 
             @Override
             public double getYOffset() {
-                return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.COMMON.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.flash) ? this.yOffset + GunEditor.get().getyMod() : this.yOffset;
+                return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.SERVER.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.flash) ? this.yOffset + GunEditor.get().getyMod() : this.yOffset;
             }
 
             @Override
             public double getZOffset() {
-                return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.COMMON.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.flash) ? this.zOffset + GunEditor.get().getzMod() : this.zOffset;
+                return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.SERVER.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.flash) ? this.zOffset + GunEditor.get().getzMod() : this.zOffset;
             }
 
             public double getTrailAdjust() {
-                return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.COMMON.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.flash) ? this.trailAdjust + GunEditor.get().getSizeMod() : this.trailAdjust;
+                return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.SERVER.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.flash) ? this.trailAdjust + GunEditor.get().getSizeMod() : this.trailAdjust;
             }
 
             /**
@@ -1652,18 +1956,18 @@ public final class Gun implements INBTSerializable<CompoundNBT> {
             //TODO: CLEAN DISGUSTING OVERRIDES, THIS IS FOR DEVELOPMENT TOOLING ONLY, ONLY FOR POSITIONED ENFORCED SYSTEMS!!!
             @Override
             public double getXOffset() {
-                return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.COMMON.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.zoom) ? super.getXOffset() + GunEditor.get().getxMod() : super.getXOffset();
+                return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.SERVER.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.zoom) ? super.getXOffset() + GunEditor.get().getxMod() : super.getXOffset();
             }
 
             @Override
             public double getYOffset() {
-                return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.COMMON.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.zoom) ?
+                return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.SERVER.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.zoom) ?
                         super.getYOffset() + GunEditor.get().getyMod() : super.getYOffset();
             }
 
             @Override
             public double getZOffset() {
-                return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.COMMON.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.zoom) ? super.getZOffset() + GunEditor.get().getzMod() : super.getZOffset();
+                return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.SERVER.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.zoom) ? super.getZOffset() + GunEditor.get().getzMod() : super.getZOffset();
             }
         }
 
@@ -1902,22 +2206,22 @@ public final class Gun implements INBTSerializable<CompoundNBT> {
                 return attachment.isEmpty() ? null : new PistolScope(attachment) {
                     @Override
                     public double getXOffset() {
-                        return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.COMMON.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.pistolScope) ? super.getXOffset() + GunEditor.get().getxMod() : super.getXOffset();
+                        return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.SERVER.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.pistolScope) ? super.getXOffset() + GunEditor.get().getxMod() : super.getXOffset();
                     }
 
                     @Override
                     public double getYOffset() {
-                        return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.COMMON.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.pistolScope) ? super.getYOffset() + GunEditor.get().getyMod() : super.getYOffset();
+                        return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.SERVER.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.pistolScope) ? super.getYOffset() + GunEditor.get().getyMod() : super.getYOffset();
                     }
 
                     @Override
                     public double getZOffset() {
-                        return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.COMMON.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.pistolScope) ? super.getZOffset() + GunEditor.get().getzMod() : super.getZOffset();
+                        return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.SERVER.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.pistolScope) ? super.getZOffset() + GunEditor.get().getzMod() : super.getZOffset();
                     }
 
                     @Override
                     public double getScale() {
-                        return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.COMMON.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.pistolScope) ? super.scale + GunEditor.get().getSizeMod() : super.scale;
+                        return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.SERVER.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.pistolScope) ? super.scale + GunEditor.get().getSizeMod() : super.scale;
                     }
                 };
             }
@@ -1928,22 +2232,22 @@ public final class Gun implements INBTSerializable<CompoundNBT> {
                 return attachment.isEmpty() ? null : new ScaledPositioned(attachment) {
                     @Override
                     public double getXOffset() {
-                        return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.COMMON.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.scope) ? super.getXOffset() + GunEditor.get().getxMod() : super.getXOffset();
+                        return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.SERVER.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.scope) ? super.getXOffset() + GunEditor.get().getxMod() : super.getXOffset();
                     }
 
                     @Override
                     public double getYOffset() {
-                        return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.COMMON.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.scope) ? super.getYOffset() + GunEditor.get().getyMod() : super.getYOffset();
+                        return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.SERVER.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.scope) ? super.getYOffset() + GunEditor.get().getyMod() : super.getYOffset();
                     }
 
                     @Override
                     public double getZOffset() {
-                        return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.COMMON.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.scope) ? super.getZOffset() + GunEditor.get().getzMod() : super.getZOffset();
+                        return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.SERVER.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.scope) ? super.getZOffset() + GunEditor.get().getzMod() : super.getZOffset();
                     }
 
                     @Override
                     public double getScale() {
-                        return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.COMMON.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.scope) ? this.scale + GunEditor.get().getSizeMod() : this.scale;
+                        return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.SERVER.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.scope) ? this.scale + GunEditor.get().getSizeMod() : this.scale;
                     }
                 };
             }
@@ -1954,22 +2258,22 @@ public final class Gun implements INBTSerializable<CompoundNBT> {
                 return attachment.isEmpty() ? null : new ScaledPositioned(attachment) {
                     @Override
                     public double getXOffset() {
-                        return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.COMMON.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.barrel) ? super.getXOffset() + GunEditor.get().getxMod() : super.getXOffset();
+                        return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.SERVER.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.barrel) ? super.getXOffset() + GunEditor.get().getxMod() : super.getXOffset();
                     }
 
                     @Override
                     public double getYOffset() {
-                        return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.COMMON.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.barrel) ? super.getYOffset() + GunEditor.get().getyMod() : super.getYOffset();
+                        return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.SERVER.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.barrel) ? super.getYOffset() + GunEditor.get().getyMod() : super.getYOffset();
                     }
 
                     @Override
                     public double getZOffset() {
-                        return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.COMMON.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.barrel) ? super.getZOffset() + GunEditor.get().getzMod() : super.getZOffset();
+                        return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.SERVER.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.barrel) ? super.getZOffset() + GunEditor.get().getzMod() : super.getZOffset();
                     }
 
                     @Override
                     public double getScale() {
-                        return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.COMMON.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.barrel) ? this.scale + GunEditor.get().getSizeMod() : this.scale;
+                        return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.SERVER.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.barrel) ? this.scale + GunEditor.get().getSizeMod() : this.scale;
                     }
                 };
             }
@@ -1980,22 +2284,22 @@ public final class Gun implements INBTSerializable<CompoundNBT> {
                 return attachment.isEmpty() ? null : new ScaledPositioned(attachment) {
                     @Override
                     public double getXOffset() {
-                        return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.COMMON.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.pistolBarrel) ? super.getXOffset() + GunEditor.get().getxMod() : super.getXOffset();
+                        return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.SERVER.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.pistolBarrel) ? super.getXOffset() + GunEditor.get().getxMod() : super.getXOffset();
                     }
 
                     @Override
                     public double getYOffset() {
-                        return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.COMMON.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.pistolBarrel) ? super.getYOffset() + GunEditor.get().getyMod() : super.getYOffset();
+                        return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.SERVER.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.pistolBarrel) ? super.getYOffset() + GunEditor.get().getyMod() : super.getYOffset();
                     }
 
                     @Override
                     public double getZOffset() {
-                        return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.COMMON.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.pistolBarrel) ? super.getZOffset() + GunEditor.get().getzMod() : super.getZOffset();
+                        return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.SERVER.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.pistolBarrel) ? super.getZOffset() + GunEditor.get().getzMod() : super.getZOffset();
                     }
 
                     @Override
                     public double getScale() {
-                        return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.COMMON.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.pistolBarrel) ? this.scale + GunEditor.get().getSizeMod() : this.scale;
+                        return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.SERVER.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.pistolBarrel) ? this.scale + GunEditor.get().getSizeMod() : this.scale;
                     }
                 };
             }
@@ -2006,22 +2310,22 @@ public final class Gun implements INBTSerializable<CompoundNBT> {
                 return attachment.isEmpty() ? null : new ScaledPositioned(attachment) {
                     @Override
                     public double getXOffset() {
-                        return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.COMMON.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.oldScope) ? super.getXOffset() + GunEditor.get().getxMod() : super.getXOffset();
+                        return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.SERVER.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.oldScope) ? super.getXOffset() + GunEditor.get().getxMod() : super.getXOffset();
                     }
 
                     @Override
                     public double getYOffset() {
-                        return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.COMMON.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.oldScope) ? super.getYOffset() + GunEditor.get().getyMod() : super.getYOffset();
+                        return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.SERVER.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.oldScope) ? super.getYOffset() + GunEditor.get().getyMod() : super.getYOffset();
                     }
 
                     @Override
                     public double getZOffset() {
-                        return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.COMMON.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.oldScope) ? super.getZOffset() + GunEditor.get().getzMod() : super.getZOffset();
+                        return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.SERVER.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.oldScope) ? super.getZOffset() + GunEditor.get().getzMod() : super.getZOffset();
                     }
 
                     @Override
                     public double getScale() {
-                        return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.COMMON.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.oldScope) ? this.scale + GunEditor.get().getSizeMod() : this.scale;
+                        return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.SERVER.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.oldScope) ? this.scale + GunEditor.get().getSizeMod() : this.scale;
                     }
                 };
             }
@@ -2354,22 +2658,22 @@ public final class Gun implements INBTSerializable<CompoundNBT> {
 
         @Override
         public double getXOffset() {
-            return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.COMMON.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.pistolScope) ? super.getXOffset() + GunEditor.get().getxMod() : super.getXOffset();
+            return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.SERVER.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.pistolScope) ? super.getXOffset() + GunEditor.get().getxMod() : super.getXOffset();
         }
 
         @Override
         public double getYOffset() {
-            return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.COMMON.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.pistolScope) ? super.getYOffset() + GunEditor.get().getyMod() : super.getYOffset();
+            return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.SERVER.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.pistolScope) ? super.getYOffset() + GunEditor.get().getyMod() : super.getYOffset();
         }
 
         @Override
         public double getZOffset() {
-            return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.COMMON.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.pistolScope) ? super.getZOffset() + GunEditor.get().getzMod() : super.getZOffset();
+            return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.SERVER.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.pistolScope) ? super.getZOffset() + GunEditor.get().getzMod() : super.getZOffset();
         }
 
         @Override
         public double getScale() {
-            return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.COMMON.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.pistolScope) ? this.scale + GunEditor.get().getSizeMod() : this.scale;
+            return (Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER && Config.SERVER.development.enableTDev.get() && GunEditor.get().getMode() == GunEditor.TaCWeaponDevModes.pistolScope) ? this.scale + GunEditor.get().getSizeMod() : this.scale;
         }
 
         public boolean getDoRenderMount() {
@@ -2674,7 +2978,8 @@ public final class Gun implements INBTSerializable<CompoundNBT> {
         if (!player.isAlive())
             return new ItemStack[]{};
         ArrayList<ItemStack> stacks = new ArrayList<>();
-        if (player.isCreative()) {
+        if ((player.isCreative() && Config.SERVER.gameplay.creativeUnlimitedReserveAmmo.get()) ||
+                (!player.isCreative() && Config.SERVER.gameplay.commonUnlimitedReserveAmmo.get())) {
             Item item = ForgeRegistries.ITEMS.getValue(id);
             stacks.add(item != null ? new ItemStack(item, Integer.MAX_VALUE) : ItemStack.EMPTY);
             return stacks.toArray(new ItemStack[]{});
@@ -2694,6 +2999,14 @@ public final class Gun implements INBTSerializable<CompoundNBT> {
 
     public static boolean isAmmo(ItemStack stack, ResourceLocation id) {
         return stack != null && stack.getItem().getRegistryName().equals(id);
+    }
+
+    public static boolean hasAmmo(PlayerEntity player, ItemStack gunStack) {
+        CompoundNBT tag = gunStack.getOrCreateTag();
+        if (gunStack.getItem() instanceof TimelessGunItem)
+            if (((TimelessGunItem) gunStack.getItem()).getGun().getReloads().isNoMag())
+                return ReloadTracker.calcMaxReserveAmmo(Gun.findAmmo(player, ((TimelessGunItem) gunStack.getItem()).getGun().getProjectile().getItem())) > 0;
+        return tag.getBoolean("IgnoreAmmo") || tag.getInt("AmmoCount") > 0;
     }
 
     public static boolean hasAmmo(ItemStack gunStack) {

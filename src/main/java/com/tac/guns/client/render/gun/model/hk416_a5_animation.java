@@ -51,7 +51,7 @@ public class hk416_a5_animation extends SkinAnimationModel {
 
             renderLaserDevice(stack, matrices, renderBuffer, light, overlay, skin);
 
-            if (transformType.isFirstPerson() || Config.COMMON.gameplay.canSeeLaserThirdSight.get())
+            if (transformType.isFirstPerson() || Config.SERVER.gameplay.canSeeLaserThirdSight.get())
                 renderLaser(stack, matrices, renderBuffer, light, overlay, skin);
 
             renderStock(stack, matrices, renderBuffer, light, overlay, skin);
@@ -66,8 +66,8 @@ public class hk416_a5_animation extends SkinAnimationModel {
             {
                 if (transformType.isFirstPerson()) {
                     Gun gun = ((GunItem) stack.getItem()).getGun();
-                    int gunRate = (int) Math.min(ShootingHandler.calcShootTickGap(gun.getGeneral().getRate()), 4);
-                    int rateBias = (int) (ShootingHandler.calcShootTickGap(gun.getGeneral().getRate()) - gunRate);
+                    float gunRate = Math.min(ShootingHandler.calcShootTickGap(gun.getGeneral().getRate()), 4);
+                    float rateBias = ShootingHandler.calcShootTickGap(gun.getGeneral().getRate()) - gunRate;
                     float cooldownOg = (ShootingHandler.get().getshootMsGap() - rateBias) / gunRate < 0 ? 1 : MathHelper.clamp((ShootingHandler.get().getshootMsGap() - rateBias) / gunRate, 0, 1);
 
                     if (Gun.hasAmmo(stack)) {

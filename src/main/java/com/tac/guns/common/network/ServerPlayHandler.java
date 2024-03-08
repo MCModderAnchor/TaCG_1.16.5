@@ -27,6 +27,7 @@ import com.tac.guns.tileentity.WorkbenchTileEntity;
 import com.tac.guns.util.GunEnchantmentHelper;
 import com.tac.guns.util.GunModifierHelper;
 import com.tac.guns.util.InventoryUtil;
+import net.minecraft.client.Minecraft;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.LivingEntity;
@@ -77,7 +78,7 @@ import static net.minecraft.entity.ai.attributes.Attributes.MOVEMENT_SPEED;
  */
 public class ServerPlayHandler {
     public static final Logger LOGGER = LogManager.getLogger(Reference.MOD_ID);
-    private static final Predicate<LivingEntity> HOSTILE_ENTITIES = entity -> entity.getSoundCategory() == SoundCategory.HOSTILE && !Config.COMMON.aggroMobs.exemptEntities.get().contains(entity.getType().getRegistryName().toString());
+    private static final Predicate<LivingEntity> HOSTILE_ENTITIES = entity -> entity.getSoundCategory() == SoundCategory.HOSTILE && !Config.SERVER.aggroMobs.exemptEntities.get().contains(entity.getType().getRegistryName().toString());
 
     /**
      * Fires the weapon the player is currently holding.
@@ -89,7 +90,9 @@ public class ServerPlayHandler {
         if (!player.isSpectator()) {
             World world = player.world;
             ItemStack heldItem = player.getHeldItem(Hand.MAIN_HAND);
-            if (heldItem.getItem() instanceof GunItem && (Gun.hasAmmo(heldItem) || player.isCreative())) {
+            if (heldItem.getItem() instanceof GunItem && (Gun.hasAmmo(player, heldItem) ||
+                    (player.isCreative() && Config.SERVER.gameplay.creativeUnlimitedCurrentAmmo.get()) ||
+                    (!player.isCreative() && Config.SERVER.gameplay.commonUnlimitedCurrentAmmo.get()))) {
                 GunItem item = (GunItem) heldItem.getItem();
                 Gun modifiedGun = item.getModifiedGun(heldItem);
                 if (modifiedGun != null) {
@@ -124,7 +127,7 @@ public class ServerPlayHandler {
                     //  total bullets before hitting max accuracy is tracked per weapon.
                     //m4 og spread 2.925
                     int count;
-                    if (modifiedGun.getDisplay().getWeaponType() == WeaponType.SG && (modifiedGun.getProjectile().isHasBlastDamage() || GunModifierHelper.isBlastFire(heldItem)))
+                    if (modifiedGun.getDisplay().getWeaponType() == WeaponType.SG && (modifiedGun.getProjectile().isHasBlastDamage() || GunModifierHelper.getHeWeight(heldItem) > -1))
                         count = 1;
                     else
                         count = modifiedGun.getGeneral().getProjectileAmount();
@@ -146,8 +149,8 @@ public class ServerPlayHandler {
 
                     MinecraftForge.EVENT_BUS.post(new GunFireEvent.Post(player, heldItem));
 
-                    if (Config.COMMON.aggroMobs.enabled.get()) {
-                        double radius = GunModifierHelper.getModifiedFireSoundRadius(heldItem, Config.COMMON.aggroMobs.range.get());
+                    if (Config.SERVER.aggroMobs.enabled.get()) {
+                        double radius = GunModifierHelper.getModifiedFireSoundRadius(heldItem, Config.SERVER.aggroMobs.range.get());
                         double x = player.getPosX();
                         double y = player.getPosY() + 0.5;
                         double z = player.getPosZ();
@@ -159,7 +162,7 @@ public class ServerPlayHandler {
                             dy = y - entity.getPosY();
                             dz = z - entity.getPosZ();
                             if (dx * dx + dy * dy + dz * dz <= radius) {
-                                entity.setRevengeTarget(Config.COMMON.aggroMobs.angerHostileMobs.get() ? player : entity);
+                                entity.setRevengeTarget(Config.SERVER.aggroMobs.angerHostileMobs.get() ? player : entity);
                             }
                         }
                     }
@@ -182,12 +185,16 @@ public class ServerPlayHandler {
                         PacketHandler.getPlayChannel().send(PacketDistributor.NEAR.with(() -> targetPoint), messageSound);
                     }
 
-                    if (!player.isCreative()) {
+                    if ((!player.isCreative() && !Config.SERVER.gameplay.commonUnlimitedCurrentAmmo.get()) ||
+                            (player.isCreative() && !Config.SERVER.gameplay.creativeUnlimitedCurrentAmmo.get())) {
                         CompoundNBT tag = heldItem.getOrCreateTag();
                         if (!tag.getBoolean("IgnoreAmmo")) {
                             int level = EnchantmentHelper.getEnchantmentLevel(ModEnchantments.RECLAIMED.get(), heldItem);
                             if (level == 0 || player.world.rand.nextInt(9 - MathHelper.clamp(level * 3, 3, 6)) != 0) {
-                                tag.putInt("AmmoCount", Math.max(0, tag.getInt("AmmoCount") - 1));
+                                if (modifiedGun.getReloads().isNoMag())
+                                    ReloadTracker.decreaseReserveAmmo(Gun.findAmmo(player, modifiedGun.getProjectile().getItem()), player, 1);
+                                else
+                                    tag.putInt("AmmoCount", Math.max(0, tag.getInt("AmmoCount") - 1));
                             }
                         }
                     }
@@ -273,6 +280,9 @@ public class ServerPlayHandler {
     public static void handleUnload(ServerPlayerEntity player) {
         ItemStack stack = player.getHeldItemMainhand();
         if (stack.getItem() instanceof GunItem) {
+            if (((GunItem) stack.getItem()).getModifiedGun(stack).getReloads().isNoMag())
+                return;
+
             CompoundNBT tag = stack.getTag();
             GunItem gunItem = (GunItem) stack.getItem();
             Gun gun = gunItem.getModifiedGun(stack);
@@ -609,17 +619,40 @@ public class ServerPlayHandler {
                     player.getHeldItemMainhand().getTag().putUniqueId("ID", id);
                     NetworkGunManager.get().StackIds.put(id, player.getHeldItemMainhand());
                 }
-                initLevelTracking(player.getHeldItemMainhand());
+                initLevelTracking(player.getHeldItemMainhand(), player);
+                if (((TimelessGunItem) player.getHeldItemMainhand().getItem()).getGun().getReloads().isHeat())
+                    initHeatTracking(player.getHeldItemMainhand(), player);
             }
         }
     }
 
-    private static void initLevelTracking(ItemStack gunStack) {
+    private static void initLevelTracking(ItemStack gunStack, ServerPlayerEntity player) {
         if (gunStack.getTag().get("level") == null) {
-            gunStack.getTag().putInt("level", 1);
+            if (Config.SERVER.gameplay.lockGunLevel.get())
+                gunStack.getTag().putInt("level", Config.SERVER.gameplay.lockLevelOfGun.get());
+            else
+                gunStack.getTag().putInt("level", 1);
         }
         if (gunStack.getTag().get("levelDmg") == null) {
             gunStack.getTag().putFloat("levelDmg", 0f);
+        }
+        if (gunStack.getTag().get("levelPlayer") == null) {
+            gunStack.getTag().putUniqueId("levelPlayer", player.getUniqueID());
+        }
+        if (gunStack.getTag().get("levelLock") == null) {
+            gunStack.getTag().putBoolean("levelLock", false);
+        }
+        if (gunStack.getTag().get("levelPlayerID") == null) {
+            gunStack.getTag().putString("levelPlayerID", player.getDisplayName().getString());
+        }
+    }
+
+    private static void initHeatTracking(ItemStack gunStack, ServerPlayerEntity player) {
+        if (gunStack.getTag().get("heatValue") == null) {
+            gunStack.getTag().putInt("heatValue", 0);
+        }
+        if (gunStack.getTag().get("overHeatLock") == null) {
+            gunStack.getTag().putBoolean("overHeatLock", false);
         }
     }
 

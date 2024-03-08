@@ -1,0 +1,77 @@
+{
+  "general": {
+    "auto": true,
+    "rate": 1200,
+    "rateSelector": [2],
+    "gripType": "tac:mini_gun",
+    "recoilAngle": 1.25,
+    "recoilKick": 1.725,
+    "horizontalRecoilAngle": 1.375,
+    "recoilAdsReduction": 0.1,
+    "cameraRecoilModifier": 1.125,
+    "weaponRecoilOffset": 0.925,
+    "recoilDuration": 0.25,
+    "weightKilo": 19.0,
+
+    "spread": 3,
+    "firstShotSpread": 0.5,
+    "hipFireInaccuracy": 1.625,
+    "projToMinAccuracy": 25,
+    "msToAccuracyReset": 1000,
+    "movementInaccuracy": 0.35
+  },
+  "reloads": {
+    "noMag": true,
+    "isHeat": true,
+    "isBarrel": true,
+    "tickToHeat": 120,
+    "tickOverHeat": 50,
+    "heatRecover": 1
+  },
+  "projectile": {
+    "item": "tac:bullet_308",
+    "visible": false,
+    "damage": 8,
+    "armorIgnore": 1,
+    "critical": 0.0,
+    "criticalDamage": 0.75,
+    "headDamage": 0.75,
+    "closeDamage": 1.2,
+    "decayStart": 0.20,
+    "minDecayMultiplier": 0.5,
+    "decayEnd": 1.0,
+    "size": 0.125,
+    "speed": 30,
+    "trailLengthMultiplier": 1.75,
+    "life": 6,
+    "pierce": 2
+  },
+  "sounds": {
+    "fire": "tac:item.minigun_fire",
+    "draw": "tac:animation.minigun_draw",
+    "inspect": "tac:animation.minigun_inspect",
+    "cock": "tac:item.pistol.cock"
+  },
+  "display": {
+    "flash": {
+      "yOffset": 4.245,
+      "zOffset": -30.42,
+      "xOffset": -8,
+      "size": 1.375,
+      "trailAdjust": 1.5
+    },
+    "hipfireScale": 3,
+    "hipfireMoveScale": 0.5,
+    "hipfireRecoilScale": 1.00,
+    "weaponType": 1
+  },
+  "modules": {
+    "attachments": {
+      "ammoPlug": {
+        "yOffset": 1000.89,
+        "zOffset": 5.35,
+        "scale": 0.0
+      }
+    }
+  }
+}

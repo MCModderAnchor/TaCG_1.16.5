@@ -1458,12 +1458,29 @@ public class GunModifiers {
 
         @Override
         public double modifyAimDownSightSpeed(double speed) {
-            return speed * 1.05;
+            return speed * 1.5;
         }
 
         @Override
         public double additionalProjectileGravity() {
             return -0.005;
+        }
+    };
+
+    public static final IGunModifier MINIGUN_MOD = new IGunModifier() {
+        @Override
+        public double modifyFireSoundRadius(double radius) {
+            return radius * 1.5;
+        }
+
+        @Override
+        public double modifyAimDownSightSpeed(double speed) {
+            return speed * 0.5;
+        }
+
+        @Override
+        public double additionalProjectileGravity() {
+            return 0.005;
         }
     };
 

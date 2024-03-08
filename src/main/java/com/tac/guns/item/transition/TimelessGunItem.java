@@ -71,14 +71,29 @@ public class TimelessGunItem extends GunItem {
         additionalDamage = modifiedGun.getProjectile().getDamage();
         additionalDamage = GunModifierHelper.getModifiedProjectileDamage(stack, additionalDamage);
         additionalDamage = GunEnchantmentHelper.getAcceleratorDamage(stack, additionalDamage);
+        additionalDamage = GunModifierHelper.getAmmoModifyDamage(stack, modifiedGun, additionalDamage);
+
+        if (stack.getTag().get("level") != null && !stack.getTag().getBoolean("levelLock")) {
+            int[] levelModifyDamage = new int[]{0, 0, 0, 0, 10, 10, 10, 20, 20, 20};
+            int[] levelAdditionalDamage = new int[]{0, 0, 0, 0, 1, 1, 1, 2, 2, 2};
+            float modifyDamageL = 1f;
+            float additionalDamageL = 0f;
+            modifyDamageL *= ((100.0 + levelModifyDamage[stack.getTag().getInt("level") - 1]) / 100.0);
+            additionalDamageL += levelAdditionalDamage[stack.getTag().getInt("level") - 1];
+
+            additionalDamage = Math.min((additionalDamage * modifyDamageL), (additionalDamage + additionalDamageL));
+        }
+
         tooltip.add((new TranslationTextComponent("info.tac.damage", TextFormatting.GOLD + ItemStack.DECIMALFORMAT.format(additionalDamage) + additionalDamageText)).mergeStyle(TextFormatting.DARK_GRAY));
 
         if (tagCompound != null) {
             if (tagCompound.getBoolean("IgnoreAmmo")) {
-                tooltip.add((new TranslationTextComponent("info.tac.ignore_ammo")).mergeStyle(TextFormatting.AQUA));
+                tooltip.add(new TranslationTextComponent("info.tac.ignore_ammo").mergeStyle(TextFormatting.AQUA));
+            } else if (modifiedGun.getReloads().isNoMag()) {
+                tooltip.add(new TranslationTextComponent("info.tac.no_mag").mergeStyle(TextFormatting.AQUA));
             } else {
                 int ammoCount = tagCompound.getInt("AmmoCount");
-                tooltip.add((new TranslationTextComponent("info.tac.ammo", TextFormatting.GOLD.toString() + ammoCount + "/" + GunModifierHelper.getAmmoCapacity(stack, modifiedGun))).mergeStyle(TextFormatting.DARK_GRAY));
+                tooltip.add(new TranslationTextComponent("info.tac.ammo", TextFormatting.WHITE.toString() + ammoCount + "/" + GunModifierHelper.getAmmoCapacity(stack, modifiedGun)).mergeStyle(TextFormatting.GRAY));
             }
         }
 
@@ -92,12 +107,12 @@ public class TimelessGunItem extends GunItem {
         if (isShift) {
             GunItem gun = (GunItem) stack.getItem();
             if (tagCompound != null) {
-                float armorPen = GunModifierHelper.getModifiedProjectileArmorIgnore(stack, (float) (Config.COMMON.gameplay.percentDamageIgnoresStandardArmor.get() * gun.getGun().getProjectile().getGunArmorIgnore())) >= 0 ?
-                        Math.min(GunModifierHelper.getModifiedProjectileArmorIgnore(stack, (float) (Config.COMMON.gameplay.percentDamageIgnoresStandardArmor.get() * gun.getGun().getProjectile().getGunArmorIgnore() * 100)), 100F) : 0F;
+                float armorPen = GunModifierHelper.getModifiedProjectileArmorIgnore(stack, (float) (Config.SERVER.gameplay.percentDamageIgnoresStandardArmor.get() * GunModifierHelper.getAmmoModifyArmorIgnore(stack, modifiedGun, gun.getGun().getProjectile().getGunArmorIgnore()))) >= 0 ?
+                        Math.min(GunModifierHelper.getModifiedProjectileArmorIgnore(stack, (float) (Config.SERVER.gameplay.percentDamageIgnoresStandardArmor.get() * GunModifierHelper.getAmmoModifyArmorIgnore(stack, modifiedGun, gun.getGun().getProjectile().getGunArmorIgnore()) * 100)), 100F) : 0F;
                 tooltip.add((new TranslationTextComponent("info.tac.armorPen", new TranslationTextComponent(String.format("%.1f", armorPen) + "%").mergeStyle(TextFormatting.RED)).mergeStyle(TextFormatting.DARK_AQUA)));
 
-                float headDamgeModifier = GunModifierHelper.getModifiedProjectileHeadDamage(stack, (float) (Config.COMMON.gameplay.headShotDamageMultiplier.get() * gun.getGun().getProjectile().getGunHeadDamage())) >= 0 ?
-                        GunModifierHelper.getModifiedProjectileHeadDamage(stack, (float) (Config.COMMON.gameplay.headShotDamageMultiplier.get() * gun.getGun().getProjectile().getGunHeadDamage())) * 100 : 0;
+                float headDamgeModifier = GunModifierHelper.getModifiedProjectileHeadDamage(stack, (float) (Config.SERVER.gameplay.headShotDamageMultiplier.get() * gun.getGun().getProjectile().getGunHeadDamage())) >= 0 ?
+                        GunModifierHelper.getModifiedProjectileHeadDamage(stack, (float) (Config.SERVER.gameplay.headShotDamageMultiplier.get() * gun.getGun().getProjectile().getGunHeadDamage())) * 100 : 0;
                 tooltip.add((new TranslationTextComponent("info.tac.headDamageModifier", new TranslationTextComponent(String.format("%.1f", headDamgeModifier) + "%").mergeStyle(TextFormatting.RED)).mergeStyle(TextFormatting.DARK_AQUA)));
 
                 float speed = ServerPlayHandler.calceldGunWeightSpeed(gun.getGun(), stack);
@@ -110,8 +125,25 @@ public class TimelessGunItem extends GunItem {
                     tooltip.add((new TranslationTextComponent("info.tac.heavyWeightGun", new TranslationTextComponent(-((int) ((0.1 - speed) * 1000)) + "%").mergeStyle(TextFormatting.RED)).mergeStyle(TextFormatting.DARK_RED)));
 
                 float percentageToNextLevel = (tagCompound.getFloat("levelDmg") * 100) / (modifiedGun.getGeneral().getLevelReq() * (((tagCompound.getInt("level")) * 3.0f)));
-                tooltip.add((new TranslationTextComponent("info.tac.current_level").append(new TranslationTextComponent(" " + tagCompound.getInt("level") + " : " + String.format("%.2f", percentageToNextLevel) + "%")))
-                        .mergeStyle(TextFormatting.GRAY).mergeStyle(TextFormatting.BOLD));
+                if (stack.getTag().get("levelPlayer") == null) {
+                    tooltip.add((new TranslationTextComponent("info.tac.no_current_level_player"))
+                            .mergeStyle(TextFormatting.DARK_GRAY).mergeStyle(TextFormatting.BOLD));
+                } else {
+                    tooltip.add((new TranslationTextComponent("info.tac.current_level_player").append(new TranslationTextComponent(" " + tagCompound.getString("levelPlayerID"))))
+                            .mergeStyle(TextFormatting.GREEN).mergeStyle(TextFormatting.BOLD));
+                }
+
+                if (stack.getTag().getBoolean("levelLock")) {
+                    tooltip.add((new TranslationTextComponent("info.tac.wrong_current_level_player"))
+                            .mergeStyle(TextFormatting.RED).mergeStyle(TextFormatting.BOLD));
+                } else {
+                    if (stack.getTag().getInt("level") < 10)
+                        tooltip.add((new TranslationTextComponent("info.tac.current_level").append(new TranslationTextComponent(" " + tagCompound.getInt("level") + " : " + String.format("%.2f", percentageToNextLevel) + "%")))
+                                .mergeStyle(TextFormatting.GRAY).mergeStyle(TextFormatting.BOLD));
+                    else
+                        tooltip.add((new TranslationTextComponent("info.tac.current_level").append(new TranslationTextComponent(" " + tagCompound.getInt("level") + " : " + "MAX")))
+                                .mergeStyle(TextFormatting.GRAY).mergeStyle(TextFormatting.BOLD));
+                }
             }
 
             tooltip.add((new TranslationTextComponent("info.tac.attachment_help", Keys.ATTACHMENTS.func_238171_j_().getString().toUpperCase(Locale.ENGLISH))).mergeStyle(TextFormatting.YELLOW));

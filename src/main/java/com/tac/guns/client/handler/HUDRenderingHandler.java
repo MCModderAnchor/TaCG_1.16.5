@@ -102,7 +102,8 @@ public class HUDRenderingHandler extends AbstractGui {
             GunItem gunItem = (GunItem) Minecraft.getInstance().player.getHeldItemMainhand().getItem();
             this.ammoReserveCount = ReloadTracker.calcMaxReserveAmmo(Gun.findAmmo(Minecraft.getInstance().player, gunItem.getGun().getProjectile().getItem()));
             // Only send if current id doesn't equal previous id, otherwise other serverside actions can force this to change like reloading
-            if (player.isCreative())
+            if ((player.isCreative() && Config.SERVER.gameplay.creativeUnlimitedCurrentAmmo.get()) ||
+                    (!player.isCreative() && Config.SERVER.gameplay.commonUnlimitedCurrentAmmo.get()))
                 return;
             //if(gunItem.getGun().getProjectile().getItem().compareTo(heldAmmoID) != 0 || ammoReserveCount == 0) {
             heldAmmoID = gunItem.getGun().getProjectile().getItem();
@@ -272,7 +273,9 @@ public class HUDRenderingHandler extends AbstractGui {
         if (!Config.CLIENT.weaponGUI.weaponGui.get()) {
             return;
         }
+
         //render icon
+        stack.translate(Config.CLIENT.weaponGUI.mainX.get(), -Config.CLIENT.weaponGUI.mainY.get(), 0);
         if (Config.CLIENT.weaponGUI.weaponTypeIcon.showWeaponIcon.get()) {
             GunSkin skin = SkinManager.getSkin(heldItem);
             if (skin != null) {
@@ -281,8 +284,8 @@ public class HUDRenderingHandler extends AbstractGui {
                     stack.push();
                     {
                         float scale = Config.CLIENT.weaponGUI.weaponTypeIcon.weaponIconSize.get().floatValue() * 0.7f;
-                        stack.translate(anchorPointX - 8 - 90 * scale + Config.CLIENT.weaponGUI.weaponTypeIcon.x.get(),
-                                anchorPointY - 25 - 90 * scale + Config.CLIENT.weaponGUI.weaponTypeIcon.y.get(), 0);
+                        stack.translate(anchorPointX - 8 - 90 * scale + Config.CLIENT.weaponGUI.weaponTypeIcon.x.get() - 31.46,
+                                anchorPointY - 25 - 90 * scale + Config.CLIENT.weaponGUI.weaponTypeIcon.y.get() + 18.21, 0);
                         stack.scale(scale, scale, scale);
                         RenderSystem.color4f(1.0f, 1.0f, 1.0f, 1.0f);
                         Minecraft.getInstance().getTextureManager().bindTexture(skin.getIcon());
@@ -304,7 +307,7 @@ public class HUDRenderingHandler extends AbstractGui {
             stack.push();
             {
                 stack.translate(anchorPointX - (fireModeSize * 2) / 4F, anchorPointY - (fireModeSize * 2) / 5F * 3F, 0);
-                stack.translate(-fireModeSize + (-0.7) + (-Config.CLIENT.weaponGUI.weaponFireMode.x.get().floatValue()), -fireModeSize + 53.2 + (-Config.CLIENT.weaponGUI.weaponFireMode.y.get().floatValue()), 0);
+                stack.translate(-fireModeSize + (-0.7) + (-Config.CLIENT.weaponGUI.weaponFireMode.x.get().floatValue() + 34.74), -fireModeSize + 53.2 + (-Config.CLIENT.weaponGUI.weaponFireMode.y.get().floatValue()), 0);
 
                 stack.translate(20, 5, 0);
                 int fireMode;
@@ -368,34 +371,66 @@ public class HUDRenderingHandler extends AbstractGui {
             stack.push();
             {
                 stack.translate(
-                        (anchorPointX - (counterSize * 32) / 2) + (-Config.CLIENT.weaponGUI.weaponAmmoCounter.x.get().floatValue()),
+                        (anchorPointX - (counterSize * 32) / 2) + (-Config.CLIENT.weaponGUI.weaponAmmoCounter.x.get().floatValue() + 39.74),
                         (anchorPointY - (counterSize * 32) / 4) + (-Config.CLIENT.weaponGUI.weaponAmmoCounter.y.get().floatValue()),
                         0
                 );
                 if (player.getHeldItemMainhand().getTag() != null) {
                     IFormattableTextComponent currentAmmo;
                     IFormattableTextComponent reserveAmmo;
+                    IFormattableTextComponent currentNoMagAmmo;
 
                     int ammo = player.getHeldItemMainhand().getTag().getInt("AmmoCount");
-                    if (player.getHeldItemMainhand().getTag().getInt("AmmoCount") <= gun.getReloads().getMaxAmmo() / 4 && this.ammoReserveCount <= gun.getReloads().getMaxAmmo()) {
+                    int ammoReserve = this.ammoReserveCount;
+                    boolean isNoMag = false;
+                    if (player.getHeldItemMainhand().getItem() instanceof TimelessGunItem)
+                        if (((TimelessGunItem) player.getHeldItemMainhand().getItem()).getModifiedGun(player.getHeldItemMainhand()).getReloads().isNoMag()) {
+                            ammo = ReloadTracker.calcMaxReserveAmmo(Gun.findAmmo(Minecraft.getInstance().player, gunItem.getGun().getProjectile().getItem()));
+                            ammoReserve = 0;
+                            isNoMag = true;
+                        }
+
+                    if (ammo <= Math.min(10, gun.getReloads().getMaxAmmo() / 4)) {
                         currentAmmo = byPaddingZeros(ammo).append(new TranslationTextComponent("" + ammo)).mergeStyle(TextFormatting.RED);
-                        reserveAmmo =
-                                byPaddingZeros(this.ammoReserveCount > 10000 ? 10000 : this.ammoReserveCount).append(new TranslationTextComponent("" + (this.ammoReserveCount > 10000 ? 9999 : this.ammoReserveCount))).mergeStyle(TextFormatting.RED);
-                    } else if (this.ammoReserveCount <= gun.getReloads().getMaxAmmo()) {
-                        currentAmmo = byPaddingZeros(ammo).append(new TranslationTextComponent("" + ammo).mergeStyle(TextFormatting.WHITE));
-                        reserveAmmo = byPaddingZeros(this.ammoReserveCount > 10000 ? 10000 : this.ammoReserveCount).append(new TranslationTextComponent("" + (this.ammoReserveCount > 10000 ? 9999 : this.ammoReserveCount))).mergeStyle(TextFormatting.RED);
-                    } else if (player.getHeldItemMainhand().getTag().getInt("AmmoCount") <= gun.getReloads().getMaxAmmo() / 4) {
-                        currentAmmo = byPaddingZeros(ammo).append(new TranslationTextComponent("" + ammo)).mergeStyle(TextFormatting.RED);
-                        reserveAmmo = byPaddingZeros(this.ammoReserveCount > 10000 ? 10000 : this.ammoReserveCount).append(new TranslationTextComponent("" + (this.ammoReserveCount > 10000 ? 9999 : this.ammoReserveCount))).mergeStyle(TextFormatting.GRAY);
+                        currentNoMagAmmo = byPaddingZeros(ammo).append(new TranslationTextComponent("" + ammo)).mergeStyle(TextFormatting.RED);
                     } else {
-                        currentAmmo = byPaddingZeros(ammo).append(new TranslationTextComponent("" + ammo).mergeStyle(TextFormatting.WHITE));
-                        reserveAmmo = byPaddingZeros(this.ammoReserveCount > 10000 ? 10000 : this.ammoReserveCount).append(new TranslationTextComponent("" + (this.ammoReserveCount > 10000 ? 9999 : this.ammoReserveCount))).mergeStyle(TextFormatting.GRAY);
+                        currentAmmo = byPaddingZeros(Math.min(ammo, 999)).append(new TranslationTextComponent("" + (ammo >= 1000 ? 999 : ammo)).mergeStyle(TextFormatting.WHITE));
+                        currentNoMagAmmo = byPaddingZeros(Math.min(ammo, 9999)).append(new TranslationTextComponent("" + (ammo >= 10000 ? 9999 : ammo)).mergeStyle(TextFormatting.WHITE));
                     }
+
+                    if (ammoReserve <= gun.getReloads().getMaxAmmo() && !isNoMag)
+                        reserveAmmo = byPaddingZeros(Math.min(ammoReserve, 10000)).append(new TranslationTextComponent("" +
+                                (ammoReserve >= 10000 ? 9999 : ammoReserve))).mergeStyle(TextFormatting.RED);
+                    else
+                        reserveAmmo = byPaddingZeros(Math.min(ammoReserve, 10000)).append(new TranslationTextComponent("" +
+                                (ammoReserve >= 10000 ? 9999 : ammoReserve))).mergeStyle(TextFormatting.GRAY);
+
+//                    if (ammo <= gun.getReloads().getMaxAmmo() / 4 && this.ammoReserveCount <= gun.getReloads().getMaxAmmo()) {
+//                        currentAmmo = byPaddingZeros(ammo).append(new TranslationTextComponent("" + ammo)).mergeStyle(TextFormatting.RED);
+//                        reserveAmmo = byPaddingZeros(Math.min(ammoReserve, 10000)).append(new TranslationTextComponent("" +
+//                                (ammoReserve > 10000 ? 9999 : ammoReserve))).mergeStyle(TextFormatting.RED);
+//                    } else if (ammoReserve <= gun.getReloads().getMaxAmmo()) {
+//                        currentAmmo = byPaddingZeros(ammo).append(new TranslationTextComponent("" + ammo).mergeStyle(TextFormatting.WHITE));
+//                        reserveAmmo = byPaddingZeros(Math.min(ammoReserve, 10000)).append(new TranslationTextComponent("" +
+//                                (ammoReserve > 10000 ? 9999 : ammoReserve))).mergeStyle(TextFormatting.RED);
+//                    } else if (ammo <= gun.getReloads().getMaxAmmo() / 4) {
+//                        currentAmmo = byPaddingZeros(ammo).append(new TranslationTextComponent("" + ammo)).mergeStyle(TextFormatting.RED);
+//                        reserveAmmo = byPaddingZeros(Math.min(ammoReserve, 10000)).append(new TranslationTextComponent("" +
+//                                (ammoReserve > 10000 ? 9999 : ammoReserve))).mergeStyle(TextFormatting.GRAY);
+//                    } else {
+//                        currentAmmo = byPaddingZeros(ammo).append(new TranslationTextComponent("" + ammo).mergeStyle(TextFormatting.WHITE));
+//                        reserveAmmo = byPaddingZeros(Math.min(ammoReserve, 10000)).append(new TranslationTextComponent("" +
+//                                (ammoReserve > 10000 ? 9999 : ammoReserve))).mergeStyle(TextFormatting.GRAY);
+//                    }
                     stack.scale(counterSize, counterSize, counterSize);
                     stack.push();
                     {
                         stack.translate(-21.15, 0, 0);
-                        drawString(stack, Minecraft.getInstance().fontRenderer, currentAmmo, 0, 0, 0xffffff); // Gun ammo
+                        if (gun.getReloads().isNoMag()) {
+                            stack.translate(-6, 0, 0);
+                            drawString(stack, Minecraft.getInstance().fontRenderer, currentNoMagAmmo, 0, 0, 0xffffff); // No mag gun ammo
+                        } else
+                            drawString(stack, Minecraft.getInstance().fontRenderer, currentAmmo, 0, 0, 0xffffff); // Gun ammo
                     }
                     stack.pop();
 
@@ -403,7 +438,7 @@ public class HUDRenderingHandler extends AbstractGui {
                     {
                         stack.scale(0.56f, 0.56f, 0.56f);
                         stack.translate(
-                                (3.7 - 1.0),
+                                (3.7 - 6.0),
                                 (3.4 - 4.5),
                                 0);
                         drawString(stack, Minecraft.getInstance().fontRenderer, reserveAmmo, 0, 0, 0xffffff); // Reserve ammo
@@ -437,15 +472,16 @@ public class HUDRenderingHandler extends AbstractGui {
             // stack.translate(0, 0, );
             stack.scale(0.0095F, 20.028F, 0); // *21F
 
-            buffer.pos(matrix, 0, ReloadBarSize, 0).tex(0, 1).color(1.0F, 1.0F, 1.0F, 0.99F).endVertex();
-            buffer.pos(matrix, ReloadBarSize, ReloadBarSize, 0).tex(1, 1).color(1.0F, 1.0F, 1.0F, 0.99F).endVertex();
-            buffer.pos(matrix, ReloadBarSize, 0, 0).tex(1, 0).color(1.0F, 1.0F, 1.0F, 0.99F).endVertex();
-            buffer.pos(matrix, 0, 0, 0).tex(0, 0).color(1.0F, 1.0F, 1.0F, 0.99F).endVertex();
+//            buffer.pos(matrix, 0, ReloadBarSize, 0).tex(0, 1).color(1.0F, 1.0F, 1.0F, 0.99F).endVertex();
+//            buffer.pos(matrix, ReloadBarSize, ReloadBarSize, 0).tex(1, 1).color(1.0F, 1.0F, 1.0F, 0.99F).endVertex();
+//            buffer.pos(matrix, ReloadBarSize, 0, 0).tex(1, 0).color(1.0F, 1.0F, 1.0F, 0.99F).endVertex();
+//            buffer.pos(matrix, 0, 0, 0).tex(0, 0).color(1.0F, 1.0F, 1.0F, 0.99F).endVertex();
 
             buffer.finishDrawing();
             WorldVertexBufferUploader.draw(buffer);
             stack.pop();
         }
+        stack.translate(-Config.CLIENT.weaponGUI.mainX.get(), Config.CLIENT.weaponGUI.mainY.get(), 0);
     }
             /*if (Minecraft.getInstance().gameSettings.viewBobbing) {
                 if (Minecraft.getInstance().player.ticksExisted % 2 == 0) {

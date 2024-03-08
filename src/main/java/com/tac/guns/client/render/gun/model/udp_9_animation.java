@@ -34,7 +34,7 @@ public class udp_9_animation extends SkinAnimationModel {
             controller.applySpecialModelTransform(getModelComponent(skin, BODY), UDP9AnimationController.INDEX_BODY, transformType, matrices);
             if (Gun.getAttachment(IAttachment.Type.SIDE_RAIL, stack).getItem() == ModItems.BASIC_LASER.orElse(ItemStack.EMPTY.getItem())) {
                 RenderUtil.renderLaserModuleModel(getModelComponent(skin, LASER_BASIC_DEVICE), Gun.getAttachment(IAttachment.Type.SIDE_RAIL, stack), matrices, renderBuffer, light, overlay);
-                if (transformType.isFirstPerson() || Config.COMMON.gameplay.canSeeLaserThirdSight.get())
+                if (transformType.isFirstPerson() || Config.SERVER.gameplay.canSeeLaserThirdSight.get())
                     RenderUtil.renderLaserModuleModel(getModelComponent(skin, LASER_BASIC), Gun.getAttachment(IAttachment.Type.SIDE_RAIL, stack), matrices, renderBuffer, 15728880, overlay); // 15728880 For fixed max light
             } else {
                 renderComponent(stack, matrices, renderBuffer, light, overlay, skin, RAIL_COVER_SIDE);
@@ -58,8 +58,8 @@ public class udp_9_animation extends SkinAnimationModel {
             {
                 if (transformType.isFirstPerson()) {
                     Gun gun = ((GunItem) stack.getItem()).getGun();
-                    int gunRate = (int) Math.min(ShootingHandler.calcShootTickGap(gun.getGeneral().getRate()), 4);
-                    int rateBias = (int) (ShootingHandler.calcShootTickGap(gun.getGeneral().getRate()) - gunRate);
+                    float gunRate = Math.min(ShootingHandler.calcShootTickGap(gun.getGeneral().getRate()), 4);
+                    float rateBias = ShootingHandler.calcShootTickGap(gun.getGeneral().getRate()) - gunRate;
                     float cooldownOg = (ShootingHandler.get().getshootMsGap() - rateBias) / gunRate < 0 ? 1 : MathHelper.clamp((ShootingHandler.get().getshootMsGap() - rateBias) / gunRate, 0, 1);
 
                     if (Gun.hasAmmo(stack)) {
