@@ -20,7 +20,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvents;
-import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
@@ -127,6 +126,9 @@ public class TacEventListeners {
             ItemStack heldItem = entity.getHeldItemMainhand();
 
             if (!(heldItem.getItem() instanceof GunItem))
+                return;
+
+            if (entity.isSpectator())
                 return;
 
             Gun gun = ((GunItem) heldItem.getItem()).getGun();

@@ -222,6 +222,7 @@ public class ShootingHandler {
             }
         } else {
             this.shooting = false;
+            PacketHandler.getPlayChannel().sendToServer(new MessageShooting(false));
         }
     }
 
@@ -371,6 +372,7 @@ public class ShootingHandler {
 
         if (GunRenderingHandler.get().sprintTransition != 0) {
             this.shooting = false;
+            PacketHandler.getPlayChannel().sendToServer(new MessageShooting(false));
             return;
         }
         if (player.isSprinting()) {
@@ -384,8 +386,12 @@ public class ShootingHandler {
             GunItem gunItem = (GunItem) heldItem.getItem();
             Gun modifiedGun = gunItem.getModifiedGun(heldItem);
 
-            if (MinecraftForge.EVENT_BUS.post(new GunFireEvent.Pre(player, heldItem)))
+            if (MinecraftForge.EVENT_BUS.post(new GunFireEvent.Pre(player, heldItem))) {
+                PacketHandler.getPlayChannel().sendToServer(new MessageShooting(false));
                 return;
+            } else {
+                PacketHandler.getPlayChannel().sendToServer(new MessageShooting(true));
+            }
 
             // CHECK HERE: Change this to test different rpm settings.
             // TODO: Test serverside, possible issues 0.3.4-alpha
