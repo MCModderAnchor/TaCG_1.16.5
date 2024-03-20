@@ -1,11 +1,13 @@
 package com.tac.guns.client.handler;
 
+import com.mrcrayfish.obfuscate.common.data.SyncedPlayerData;
 import com.tac.guns.Config;
 import com.tac.guns.client.Keys;
 import com.tac.guns.client.render.animation.module.GunAnimationController;
 import com.tac.guns.common.Gun;
 import com.tac.guns.common.ReloadTracker;
 import com.tac.guns.event.GunFireEvent;
+import com.tac.guns.init.ModSyncedDataKeys;
 import com.tac.guns.item.GunItem;
 import com.tac.guns.item.transition.TimelessGunItem;
 import com.tac.guns.mixin.client.MinecraftStaticMixin;
@@ -210,6 +212,12 @@ public class ShootingHandler {
 //              }
                 if (shooting != this.shooting) {
                     this.shooting = shooting;
+                    PacketHandler.getPlayChannel().sendToServer(new MessageShooting(shooting));
+                    if (!shooting && originalSprint) {
+                        originalSprint = false;
+                        player.setSprinting(true);
+                    }
+                } else if (shooting != SyncedPlayerData.instance().get(player, ModSyncedDataKeys.SHOOTING)) {
                     PacketHandler.getPlayChannel().sendToServer(new MessageShooting(shooting));
                     if (!shooting && originalSprint) {
                         originalSprint = false;
